@@ -1,0 +1,46 @@
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="${workflow_name}">
+
+	<global>
+		<job-tracker>${job_tracker}</job-tracker>
+		<name-node>${name_node}</name-node>
+	</global>	
+
+	<credentials>
+		<credential name="hcatauth" type="hcat">
+				<property>
+						<name>hcat.metastore.uri</name>
+						<value>${hcat_metastore_uri}</value>
+				</property>
+				<property>
+						<name>hcat.metastore.principal</name>
+						<value>${hcat_metastore_principal}</value>
+				</property>
+		</credential>
+		<credential name="hiveauth" type="hive2">
+				<property>
+						<name>hive2.jdbc.url</name>
+						<value>${hive_metastore_uri}</value>
+				</property>
+				<property>
+						<name>hive2.server.principal</name>
+						<value>${hive_metastore_principal}</value>
+				</property>
+		</credential>
+	</credentials>
+
+<start to="emptest"/>
+	
+	<action name="emptest" cred="hiveauth">
+			<hive2 xmlns="uri:oozie:hive2-action:0.1">
+					<jdbc-url>${hive_metastore_uri}</jdbc-url>
+					<script>${hive_script_loc}/${hive_script_name}</script>
+			</hive2>
+			<ok to="end"/>
+			<error to="fail"/>
+	</action>
+	<kill name="fail">
+		<message>Hive Action failed</message>
+	</kill>
+
+<end name="end"/>
+</workflow-app>
